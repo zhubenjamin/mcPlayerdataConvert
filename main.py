@@ -44,4 +44,4 @@ for f in playerdata:
     currentPD = nbt.NBTFile(f"./{directory}/{f}", "rb")
     name = currentPD["bukkit"]["lastKnownName"].value
     offlineUUID = uuid.uuid3(NULL_NAMESPACE, f"OfflinePlayer:{name}")
-    currentPD.write_file(f"./{outputdir}/{offlineUUID}")
+    currentPD.write_file(f"./{outputdir}/{offlineUUID}.dat")
