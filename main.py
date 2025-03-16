@@ -25,6 +25,18 @@ for f in files:
 
 os.chdir(origincwd)
 
+try:
+    os.chdir(outputdir)
+except FileNotFoundError:
+    for d in outputdir.split("/"):
+        try:
+            os.chdir(d)
+        except FileNotFoundError:
+            os.mkdir(d)
+            os.chdir(d)
+
+os.chdir(origincwd)
+
 class NULL_NAMESPACE:
     bytes = b''
 
