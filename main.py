@@ -1,11 +1,24 @@
 from nbt import nbt
 import os
 import uuid
+import logging
+from datetime import datetime
+
+origincwd = os.getcwd()
+
+logFile = f"./logs/{datetime.strftime(datetime.now(), '%Y_%m_%dT%H_%M_%SZ%z')}.log"
+try:
+    os.chdir("./logs/")
+except FileNotFoundError:
+    os.mkdir("logs")
+os.chdir(origincwd)
+LOG_LEVEL = logging.DEBUG
+logging.basicConfig(format="[%(filename)s %(asctime)s %(levelname)s] %(message)s", level=LOG_LEVEL, handlers=[logging.StreamHandler(), logging.FileHandler(logFile)])
+logging.getLogger().addHandler(logging.StreamHandler())
+logging.debug("Logging initialized")
 
 directory = "./playerdata"
 outputdir = "./new_playerdata"
-
-origincwd = os.getcwd()
 
 try:
     os.chdir(directory)
@@ -20,7 +33,8 @@ except FileNotFoundError:
 files = os.listdir(".")
 playerdata = []
 for f in files:
-    if f[-4:-1] == ".dat":
+    if f[-4:] == ".dat":
+        logging.debug(f"found valid playerdata {f}")
         playerdata.append(f)
 
 os.chdir(origincwd)
@@ -45,3 +59,4 @@ for f in playerdata:
     name = currentPD["bukkit"]["lastKnownName"].value
     offlineUUID = uuid.uuid3(NULL_NAMESPACE, f"OfflinePlayer:{name}")
     currentPD.write_file(f"./{outputdir}/{offlineUUID}.dat")
+    logging.debug(f"created converted playerdata for '{name}' with offline uuid '{offlineUUID}'")
