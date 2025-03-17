@@ -33,6 +33,15 @@ except FileNotFoundError:
         except FileNotFoundError:
             os.mkdir(d)
             os.chdir(d)
+try:
+    os.chdir(advancementsDir)
+except FileNotFoundError:
+    for d in directory.split("/"):
+        try:
+            os.chdir(d)
+        except FileNotFoundError:
+            os.mkdir(d)
+            os.chdir(d)
 
 files = os.listdir(".")
 playerdata = []
@@ -47,6 +56,15 @@ try:
     os.chdir(outputdir)
 except FileNotFoundError:
     for d in outputdir.split("/"):
+        try:
+            os.chdir(d)
+        except FileNotFoundError:
+            os.mkdir(d)
+            os.chdir(d)
+try:
+    os.chdir(outputAdvDir)
+except FileNotFoundError:
+    for d in directory.split("/"):
         try:
             os.chdir(d)
         except FileNotFoundError:
