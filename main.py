@@ -25,16 +25,17 @@ advancementsDir = "./advancements"
 outputAdvDir = "./new_advancements"
 
 try:
-    os.chdir(directory)
+    os.chdir(advancementsDir)
 except FileNotFoundError:
-    for d in directory.split("/"):
+    for d in advancementsDir.split("/"):
         try:
             os.chdir(d)
         except FileNotFoundError:
             os.mkdir(d)
             os.chdir(d)
+os.chdir(origincwd)
 try:
-    os.chdir(advancementsDir)
+    os.chdir(directory)
 except FileNotFoundError:
     for d in directory.split("/"):
         try:
@@ -61,10 +62,11 @@ except FileNotFoundError:
         except FileNotFoundError:
             os.mkdir(d)
             os.chdir(d)
+os.chdir(origincwd)
 try:
     os.chdir(outputAdvDir)
 except FileNotFoundError:
-    for d in directory.split("/"):
+    for d in outputAdvDir.split("/"):
         try:
             os.chdir(d)
         except FileNotFoundError:
