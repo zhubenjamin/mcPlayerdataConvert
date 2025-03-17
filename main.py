@@ -3,6 +3,7 @@ import os
 import uuid
 import logging
 from datetime import datetime
+import shutil
 
 origincwd = os.getcwd()
 
@@ -19,6 +20,9 @@ logging.debug("Logging initialized")
 
 directory = "./playerdata"
 outputdir = "./new_playerdata"
+convertAdvancements = True
+advancementsDir = "./advancements"
+outputAdvDir = "./new_advancements"
 
 try:
     os.chdir(directory)
@@ -60,3 +64,5 @@ for f in playerdata:
     offlineUUID = uuid.uuid3(NULL_NAMESPACE, f"OfflinePlayer:{name}")
     currentPD.write_file(f"./{outputdir}/{offlineUUID}.dat")
     logging.debug(f"created converted playerdata for '{name}' with offline uuid '{offlineUUID}'")
+    if convertAdvancements:
+        shutil.copyfile(f"./{advancementsDir}/{f[:-4]}.json", f"./{outputAdvDir}/{offlineUUID}.json")
