@@ -18,16 +18,33 @@ logging.basicConfig(format="[%(filename)s %(asctime)s %(levelname)s] %(message)s
 logging.getLogger().addHandler(logging.StreamHandler())
 logging.debug("Logging initialized")
 
-directory = "./playerdata"
-outputdir = "./new_playerdata"
-convertAdvancements = True
-advancementsDir = "./advancements"
-outputAdvDir = "./new_advancements"
+defaults = {
+    "directory": "./playerdata",
+    "outputdir": "./new_playerdata",
+    "convertAdvancements": True,
+    "advancementsDir": "./advancements",
+    "outputAdvDir": "./new_advancements"
+}
+
+inputs = {
+    "directory": input("Input playerdata directory: "),
+    "outputdir": input("Output playerdata directory: "),
+    "convertAdvancements": bool(input("Should I convert advancements (T/F): "))
+}
+
+inputs.update({
+    "advancementsDir": input("Input advancements directory: ") if inputs["convertAdvancements"] else "",
+    "outputAdvDir": input("Output advancements directory: ") if inputs["convertAdvancements"] else ""
+})
+
+for val in inputs:
+    if inputs[val] == "":
+        inputs[val] == defaults[val]
 
 try:
-    os.chdir(advancementsDir)
+    os.chdir(inputs["advancementsDir"])
 except FileNotFoundError:
-    for d in advancementsDir.split("/"):
+    for d in inputs["advancementsDir"].split("/"):
         try:
             os.chdir(d)
         except FileNotFoundError:
@@ -35,9 +52,9 @@ except FileNotFoundError:
             os.chdir(d)
 os.chdir(origincwd)
 try:
-    os.chdir(directory)
+    os.chdir(inputs["directory"])
 except FileNotFoundError:
-    for d in directory.split("/"):
+    for d in inputs["directory"].split("/"):
         try:
             os.chdir(d)
         except FileNotFoundError:
@@ -54,9 +71,9 @@ for f in files:
 os.chdir(origincwd)
 
 try:
-    os.chdir(outputdir)
+    os.chdir(inputs["outputdir"])
 except FileNotFoundError:
-    for d in outputdir.split("/"):
+    for d in inputs["outputdir"].split("/"):
         try:
             os.chdir(d)
         except FileNotFoundError:
@@ -64,9 +81,9 @@ except FileNotFoundError:
             os.chdir(d)
 os.chdir(origincwd)
 try:
-    os.chdir(outputAdvDir)
+    os.chdir(inputs["outputAdvDir"])
 except FileNotFoundError:
-    for d in outputAdvDir.split("/"):
+    for d in inputs["outputAdvDir"].split("/"):
         try:
             os.chdir(d)
         except FileNotFoundError:
@@ -79,10 +96,10 @@ class NULL_NAMESPACE:
     bytes = b''
 
 for f in playerdata:
-    currentPD = nbt.NBTFile(f"./{directory}/{f}", "rb")
+    currentPD = nbt.NBTFile(f"./{inputs["directory"]}/{f}", "rb")
     name = currentPD["bukkit"]["lastKnownName"].value
     offlineUUID = uuid.uuid3(NULL_NAMESPACE, f"OfflinePlayer:{name}")
-    currentPD.write_file(f"./{outputdir}/{offlineUUID}.dat")
+    currentPD.write_file(f"./{inputs["outputdir"]}/{offlineUUID}.dat")
     logging.debug(f"created converted playerdata for '{name}' with offline uuid '{offlineUUID}'")
-    if convertAdvancements:
-        shutil.copyfile(f"./{advancementsDir}/{f[:-4]}.json", f"./{outputAdvDir}/{offlineUUID}.json")
+    if inputs["convertAdvancements"]:
+        shutil.copyfile(f"./{inputs["advancementsDir"]}/{f[:-4]}.json", f"./{inputs["outputAdvDir"]}/{offlineUUID}.json")
