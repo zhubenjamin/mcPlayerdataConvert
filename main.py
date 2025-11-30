@@ -15,13 +15,12 @@ except FileNotFoundError:
 os.chdir(origincwd)
 LOG_LEVEL = logging.DEBUG
 logging.basicConfig(format="[%(filename)s %(asctime)s %(levelname)s] %(message)s", level=LOG_LEVEL, handlers=[logging.StreamHandler(), logging.FileHandler(logFile)])
-logging.getLogger().addHandler(logging.StreamHandler())
 logging.debug("Logging initialized")
 
 defaults = {
     "directory": "./playerdata",
     "outputdir": "./new_playerdata",
-    "convertAdvancements": True,
+    "convertAdvancements": False,
     "advancementsDir": "./advancements",
     "outputAdvDir": "./new_advancements"
 }
@@ -39,7 +38,7 @@ inputs.update({
 
 for val in inputs:
     if inputs[val] == "":
-        inputs[val] == defaults[val]
+        inputs[val] = defaults[val]
 
 try:
     os.chdir(inputs["advancementsDir"])
@@ -96,10 +95,22 @@ class NULL_NAMESPACE:
     bytes = b''
 
 for f in playerdata:
-    currentPD = nbt.NBTFile(f"./{inputs["directory"]}/{f}", "rb")
-    name = currentPD["bukkit"]["lastKnownName"].value
+    try:
+        currentPD = nbt.NBTFile(f"./{inputs["directory"]}/{f}", "rb")
+    except Exception as e:
+        logging.error(f"Unable to open ./{inputs["directory"]}/{f}")
+        logging.debug(e)
+    try:
+        name = currentPD["bukkit"]["lastKnownName"].value
+    except Exception as e:
+        logging.error(f"Unable to access ['bukkit']['lastKnownName'] of ./{inputs["directory"]}/{f}. You probably aren't on Bukkit or one of its forks.")
+        logging.debug(e)
     offlineUUID = uuid.uuid3(NULL_NAMESPACE, f"OfflinePlayer:{name}")
     currentPD.write_file(f"./{inputs["outputdir"]}/{offlineUUID}.dat")
     logging.debug(f"created converted playerdata for '{name}' with offline uuid '{offlineUUID}'")
     if inputs["convertAdvancements"]:
-        shutil.copyfile(f"./{inputs["advancementsDir"]}/{f[:-4]}.json", f"./{inputs["outputAdvDir"]}/{offlineUUID}.json")
+        try:
+            shutil.copyfile(f"./{inputs["advancementsDir"]}/{f[:-4]}.json", f"./{inputs["outputAdvDir"]}/{offlineUUID}.json")
+        except Exception as e:
+            logging.error(f"Unable to copy ./{inputs["advancementsDir"]}/{f[:-4]}.json to ./{inputs["outputAdvDir"]}/{offlineUUID}.json")
+            logging.debug(e)
